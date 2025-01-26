@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MuseumAPI.Data.Models;
+using Projekti.Models;
 using ShoppingCartAPI.Models;
 
 
@@ -24,6 +25,27 @@ namespace MuseumAPI.Data
          .OnDelete(DeleteBehavior.Cascade); 
 
             base.OnModelCreating(modelBuilder);
+
+
+            modelBuilder.Entity<workModel>(entity =>
+            {
+                entity.HasKey(w => w.Id);
+                entity.Property(w => w.Name)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(w => w.Artist)
+                    .HasMaxLength(100);
+
+                entity.Property(w => w.Category)
+                    .HasMaxLength(50);
+
+                entity.Property(w => w.CreationDateText)
+                    .HasMaxLength(50);
+
+                entity.Property(w => w.Era)
+                    .HasMaxLength(50);
+            });
         }
 
         public DbSet<ArtistModel> Artists { get; set; }
@@ -32,6 +54,7 @@ namespace MuseumAPI.Data
         public DbSet<TicketsModel>Tickets { get; set; }
         public DbSet<UserModel> Users { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<workModel> Work { get; set; }
 
 
 

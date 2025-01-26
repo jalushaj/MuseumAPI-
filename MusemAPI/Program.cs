@@ -29,6 +29,8 @@ builder.Services.AddTransient<GiftService>();
 builder.Services.AddTransient<TicketsService>();   
 builder.Services.AddTransient<RegistrationService>();
 builder.Services.AddScoped<ShoppingCartService>();
+builder.Services.AddTransient<workService>();
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
