@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MuseumAPI.Data;
-using MuseumAPI.Data.Models;
 using Projekti.Models;
 
-namespace MuseumAPI.Controllers
+namespace Projekti.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -13,11 +11,12 @@ namespace MuseumAPI.Controllers
     {
         private readonly AppDbContext _context;
 
-        public WorkController(AppDbContext context)
+        public WorkController( AppDbContext context)
         {
             _context = context;
         }
 
+        // GET: api/works
         [HttpGet]
         public async Task<ActionResult<IEnumerable<workModel>>> GetWorks()
         {
@@ -30,7 +29,8 @@ namespace MuseumAPI.Controllers
                     Description = work.Description,
                     Category = work.Category,
                     CreationDate = work.CreationDate,
-                    CreationDateText = work.CreationDateText ?? "No Date Available",
+                    // If CreationDate is not null, format it as 'yyyy-MM-dd', otherwise return null
+                    CreationDateText = work.CreationDateText ?? "No Date Available", // If no CreationDateText, return "No Date Available"
                     Era = work.Era
                 })
                 .ToListAsync();
@@ -38,6 +38,9 @@ namespace MuseumAPI.Controllers
             return Ok(works);
         }
 
+
+
+        // GET: api/works/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<workModel>> GetWork(int id)
         {
@@ -50,22 +53,37 @@ namespace MuseumAPI.Controllers
             return Ok(work);
         }
 
+        // POST: api/works
         [HttpPost]
         public async Task<ActionResult<workModel>> CreateWork(workModel work)
         {
+            // Validate the work object
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
+            // Ensure the ID is not manually set
             work.Id = 0;
 
+            // Add the new work to the database
             _context.Work.Add(work);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException e)
+            {
+                // Log the exception or handle it
+                return StatusCode(500, new { Message = "An error occurred while saving the work.", Error = e.Message });
+            }
 
+            // Return the created work with a location header
             return CreatedAtAction(nameof(GetWork), new { id = work.Id }, work);
         }
 
+
+        // PUT: api/works/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateWork(int id, workModel updatedWork)
         {
@@ -80,6 +98,7 @@ namespace MuseumAPI.Controllers
                 return NotFound(new { Message = $"Work with ID {id} not found." });
             }
 
+            // Update the existing work with the new values
             existingWork.Name = updatedWork.Name;
             existingWork.Artist = updatedWork.Artist;
             existingWork.Description = updatedWork.Description;
@@ -88,12 +107,15 @@ namespace MuseumAPI.Controllers
             existingWork.CreationDateText = updatedWork.CreationDateText;
             existingWork.Era = updatedWork.Era;
 
+            // Mark the entity as modified and save changes
             _context.Entry(existingWork).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
+
+        // DELETE: api/works/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteWork(int id)
         {
@@ -103,59 +125,11 @@ namespace MuseumAPI.Controllers
                 return NotFound(new { Message = $"Work with ID {id} not found." });
             }
 
+            // Remove the work from the database
             _context.Work.Remove(work);
             await _context.SaveChangesAsync();
 
             return Ok(new { Message = $"Work with ID {id} deleted successfully." });
-        }
-
-        [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<workModel>>> SearchWorks([FromQuery] string field, [FromQuery] string query)
-        {
-            if (string.IsNullOrWhiteSpace(field) || string.IsNullOrWhiteSpace(query))
-            {
-                return BadRequest(new { Message = "Field and query parameters are required." });
-            }
-
-            query = query.ToLower();
-            IQueryable<workModel> results;
-
-            switch (field.ToLower())
-            {
-                case "name":
-                    results = _context.Work.Where(w => w.Name.ToLower().Contains(query));
-                    break;
-                case "artist":
-                    results = _context.Work.Where(w => w.Artist.ToLower().Contains(query));
-                    break;
-                case "category":
-                    results = _context.Work.Where(w => w.Category.ToLower().Contains(query));
-                    break;
-                case "era":
-                    results = _context.Work.Where(w => w.Era.ToLower().Contains(query));
-                    break;
-                default:
-                    return BadRequest(new { Message = "Invalid search field." });
-            }
-
-            var filteredWorks = await results.Select(work => new workModel
-            {
-                Id = work.Id,
-                Name = work.Name,
-                Artist = work.Artist,
-                Description = work.Description,
-                Category = work.Category,
-                CreationDate = work.CreationDate,
-                CreationDateText = work.CreationDateText ?? "No Date Available",
-                Era = work.Era
-            }).ToListAsync();
-
-            if (!filteredWorks.Any())
-            {
-                return NotFound(new { Message = "No works found matching your search criteria." });
-            }
-
-            return Ok(filteredWorks);
         }
     }
 }
