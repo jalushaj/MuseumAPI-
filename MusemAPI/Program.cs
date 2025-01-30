@@ -30,8 +30,6 @@ builder.Services.AddTransient<TicketsService>();
 builder.Services.AddTransient<RegistrationService>();
 builder.Services.AddScoped<ShoppingCartService>();
 builder.Services.AddTransient<workService>();
-builder.Services.AddScoped<ExhibitionService>();
-builder.Services.AddScoped<ExhibitionRepository>();
 builder.Services.AddScoped<BookingService>();
 builder.Services.AddScoped<BookingRepository>();
 
