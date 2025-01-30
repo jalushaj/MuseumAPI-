@@ -7,6 +7,6 @@ namespace MuseumAPI.Data.Models
         [Key]
         public int Id { get; set; }
         public string Username { get; set; }
-        public string Password { get; set; } // Consider encrypting in a real application
+        public string Password { get; set; } 
     }
 }
