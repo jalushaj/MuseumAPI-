@@ -56,7 +56,6 @@ namespace MuseumAPI.Data
         public DbSet<UserModel> Users { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<workModel> Work { get; set; }
-        public DbSet<Exhibition> Exhibitions { get; set; }
         public DbSet<Admin> Admins { get; set; }
         public DbSet<Booking> Bookings { get; set; }
 
