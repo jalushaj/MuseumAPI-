@@ -10,7 +10,7 @@ namespace MusemAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ArtistController : ControllerBase  
+    public class ArtistController : ControllerBase
     {
         public ArtistService _artistService;
         public ArtistController(ArtistService artistService)

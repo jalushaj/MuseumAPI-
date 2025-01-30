@@ -7,7 +7,7 @@ namespace MuseumAPI.Data.Services
 {
     public class ArtistService
     {
-            private AppDbContext _context;
+        private AppDbContext _context;
         public ArtistService(AppDbContext context)
         {
             _context = context;
